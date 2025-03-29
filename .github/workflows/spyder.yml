@@ -1,0 +1,46 @@
+name: Spyder
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+
+jobs:
+  spyder:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run static.py
+        run: python static.py
+
+      - name: Commit and Push JSON
+        run: |
+          git add static.json
+          git commit -m "Update static.json" || echo "No changes to commit"
+          git push
+
+      - name: Run api.py
+        run: python api.py
+
+      - name: Commit and Push CSV
+        run: |
+          git add api.csv
+          git commit -m "Update api.csv" || echo "No changes to commit"
+          git push
